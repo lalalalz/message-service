@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+# kafka
+kafka:
+  bootstrap-servers: kafka-controller-headless.kafka:9092, kafka-controller-headless.kafka:9093, kafka-controller-headless.kafka:9094
+  compression-type: zstd
+  acks: "all"
+  retries: 3
+  linger-ms: 20
+  topic:
+    informational:
+      email: "prod.message-service.email.informational"
+      push: "prod.message-service.push.informational"
+    advertising:
+      email: "prod.message-service.email.advertising"
+      push: "prod.message-service.push.advertising"

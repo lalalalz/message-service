@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+kafka:
+  bootstrap-servers: 192.168.100.201:9094,192.168.100.202:9094,192.168.100.203:9094
+  compression-type: zstd
+  acks: "all"
+  retries: 3
+  linger-ms: 20
+  topic:
+    informational:
+      email: "local.message-service.email.informational"
+      push: "local.message-service.push.informational"
+    advertising:
+      email: "local.message-service.email.advertising"
+      push: "local.message-service.push.advertising"
