@@ -1,4 +1,4 @@
-package kr.co.kwt.messageapi.adapter.out.persistence.adapter;
+package kr.co.kwt.messageapi.adapter;
 
 import kr.co.kwt.messageapi.adapter.out.persistence.entity.email.AdvertisingEmailEntity;
 import kr.co.kwt.messageapi.adapter.out.persistence.repository.email.AdvertisingEmailRepository;
