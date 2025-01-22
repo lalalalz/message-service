@@ -1,7 +1,9 @@
 package kr.co.kwt.messageapi.adapter.out.messaging.kafka.config;
 
-import kr.co.kwt.messageapi.domain.model.Message;
+import kr.co.kwt.messageapi.domain.message.Message;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,15 @@ public class KafkaProducerConfig {
     @Value(value = "${kafka.retries}")
     private String retries;
 
+    @Value(value = "${kafka.security.protocol}")
+    private String securityProtocol;
+
+    @Value(value = "${kafka.sasl.mechanism}")
+    private String saslMechanism;
+
+    @Value(value = "${kafka.sasl.jaas.config}")
+    private String saslJaasConfig;
+
     @Bean
     public ProducerFactory<String, Message> producerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -41,6 +52,9 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.RETRIES_CONFIG, retries);
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
         props.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+        props.put(SaslConfigs.SASL_MECHANISM, saslMechanism);
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
 
         return new DefaultKafkaProducerFactory<>(props);
     }

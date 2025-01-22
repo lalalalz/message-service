@@ -1,39 +1,18 @@
 package kr.co.kwt.messageapi.adapter.in.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import kr.co.kwt.messageapi.domain.model.Message;
+import kr.co.kwt.messageapi.application.port.in.SendMessageCommand;
 
 public record MessageRequest(
-        @NotBlank(message = "Type is required")
-        @Pattern(regexp = "^(EMAIL|PUSH)$", message = "Invalid message type")
         String type,
-
-        @NotBlank(message = "Purpose is required")
-        @Pattern(regexp = "^(INFORMATIONAL|ADVERTISING)$", message = "Invalid message purpose")
-        String purpose,
-
-        @NotBlank(message = "Title is required")
-        String title,
-
-        @NotBlank(message = "Content is required")
-        String content,
-
-        @NotBlank(message = "Recipient is required")
+        String titleText,
+        String bodyText,
+        String image,
         String to,
-
-        String imagePath,
-
-        String grade
+        String from,
+        String priority,
+        String channel
 ) {
-    public Message toMessage() {
-        return Message.builder()
-                .type(type)
-                .purpose(purpose)
-                .title(title)
-                .content(content)
-                .to(to)
-                .imagePath(imagePath)
-                .build();
+    public SendMessageCommand toCommand() {
+        return new SendMessageCommand(titleText, bodyText, image, channel, type, from, to, priority);
     }
 }
