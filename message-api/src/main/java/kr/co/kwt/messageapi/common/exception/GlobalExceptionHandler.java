@@ -1,6 +1,7 @@
 package kr.co.kwt.messageapi.common.exception;
 
 import kr.co.kwt.messageapi.common.exception.dto.ExceptionResponse;
+import kr.co.kwt.messageapi.domain.error.DomainException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +14,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ExceptionResponse> handleMessageSendException(DomainException e) {
+        log.error("DomainException occurred: {}", e.getFormattedMessage(), e);
+        return ResponseEntity.badRequest()
+                .body(ExceptionResponse.error(e.getMessage()));
+    }
 
     @ExceptionHandler(MessageSendException.class)
     public ResponseEntity<ExceptionResponse> handleMessageSendException(MessageSendException e) {

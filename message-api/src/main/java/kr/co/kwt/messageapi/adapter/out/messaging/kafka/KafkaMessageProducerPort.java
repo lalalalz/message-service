@@ -1,10 +1,10 @@
 package kr.co.kwt.messageapi.adapter.out.messaging.kafka;
 
-import kr.co.kwt.messageapi.domain.model.Message;
-import kr.co.kwt.messageapi.domain.model.MessagePurpose;
-import kr.co.kwt.messageapi.domain.model.MessageType;
 import kr.co.kwt.messageapi.application.port.out.MessageProducerPort;
 import kr.co.kwt.messageapi.common.exception.MessageSendException;
+import kr.co.kwt.messageapi.domain.message.Channel;
+import kr.co.kwt.messageapi.domain.message.Message;
+import kr.co.kwt.messageapi.domain.message.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,14 +33,16 @@ public class KafkaMessageProducerPort implements MessageProducerPort {
 
     @Override
     public void send(Message message) {
-        String topic = getTopicByMessageTypeAndPurpose(message.getType(), message.getPurpose());
+        String topic = getTopicByMessageTypeAndPurpose(message.getType().name(), message.getChannel().name());
 
         try {
-            kafkaTemplate.send(topic, message.getTo(), message)
+            kafkaTemplate
+                    .send(topic, message.getTo().getIdentity(), message)
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
                             log.info("Message sent successfully. Topic: {}, Message: {}", topic, message);
-                        } else {
+                        }
+                        else {
                             log.error("Failed to send message. Topic: {}, Message: {}, Error: {}",
                                     topic, message, ex.getMessage(), ex);
                         }
@@ -53,17 +55,19 @@ public class KafkaMessageProducerPort implements MessageProducerPort {
     }
 
     private String getTopicByMessageTypeAndPurpose(String type, String purpose) {
-        MessageType messageType = MessageType.valueOf(type.toUpperCase());
-        MessagePurpose messagePurpose = MessagePurpose.valueOf(purpose.toUpperCase());
+        Type messageType = Type.valueOf(type.toUpperCase());
+        Channel channel = Channel.valueOf(purpose.toUpperCase());
 
-        return switch (messagePurpose) {
-            case INFORMATIONAL -> switch (messageType) {
+        return switch (messageType) {
+            case INFORMATIONAL -> switch (channel) {
                 case EMAIL -> informationalEmailTopic;
                 case PUSH -> informationalPushTopic;
+                default -> throw new IllegalStateException("Unexpected value: " + channel);
             };
-            case ADVERTISING -> switch (messageType) {
+            case ADVERTISING -> switch (channel) {
                 case EMAIL -> advertisingEmailTopic;
                 case PUSH -> advertisingPushTopic;
+                default -> throw new IllegalStateException("Unexpected value: " + channel);
             };
         };
     }

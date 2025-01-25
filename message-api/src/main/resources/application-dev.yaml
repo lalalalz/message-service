@@ -3,10 +3,25 @@ spring:
     activate:
       on-profile: dev
 
+  data:
+    mongodb:
+      host: 192.168.100.100
+      port: 31017
+      authentication-database: admin
+      username: root
+      password: devqlalfqjsgh486
+      database: message
+
 # kafka
 kafka:
   bootstrap-servers: 192.168.100.201:9094,192.168.100.202:9094,192.168.100.203:9094
   compression-type: zstd
+  security:
+    protocol: SASL_PLAINTEXT
+  sasl:
+    mechanism: SCRAM-SHA-512
+    jaas:
+      config: org.apache.kafka.common.security.scram.ScramLoginModule required username="user1" password="Jkco2eqlPx";
   acks: "all"
   retries: 3
   linger-ms: 20

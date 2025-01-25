@@ -2,9 +2,9 @@ package kr.co.kwt.messageapi.adapter.out.persistence.entity.email;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import kr.co.kwt.messageapi.domain.model.Message;
 import kr.co.kwt.messageapi.adapter.out.persistence.common.BaseMessageEntity;
 import kr.co.kwt.messageapi.adapter.out.persistence.common.MessageStatus;
+import kr.co.kwt.messageapi.domain.message.Message;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,10 +21,10 @@ public class InformationalEmailEntity extends BaseMessageEntity {
 
     public static InformationalEmailEntity fromDomain(Message message) {
         return new InformationalEmailEntity(
-                message.getTitle(),
-                message.getContent(),
-                message.getTo(),
-                message.getImagePath(),
+                message.getTitle().getText(),
+                message.getBody().getText(),
+                message.getTo().getIdentity(),
+                message.getBody().getImage(),
                 MessageStatus.PENDING
         );
     }
