@@ -2,6 +2,7 @@ package kr.co.kwt.messageapi.domain.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.*;
 import static lombok.AccessLevel.PACKAGE;
 
 @Getter
+@ToString
 @AllArgsConstructor(access = PACKAGE)
 public class Message {
 
@@ -76,6 +78,7 @@ public class Message {
     }
 
     public void validateMessage() {
+        // 필드 정상
         notNull(channel, CHANNEL_UNDEFINED);
         notNull(header, HEADER_UNDEFINED);
         notNull(body, BODY_UNDEFINED);
@@ -84,6 +87,7 @@ public class Message {
         notNull(status, STATUS_UNDEFINED);
         notNull(options, OPTION_UNDEFINED);
 
+        // 유효성 체크
         options.forEach(Option::validate);
         header.validate();
         body.validate();

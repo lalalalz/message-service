@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.ResponseEntity.accepted;
+
 @RestController
 @RequestMapping("/messages")
 @RequiredArgsConstructor
@@ -18,6 +20,7 @@ public class MessageController {
     @PostMapping("/send")
     public ResponseEntity<Void> sendMessage(@RequestBody MessageRequest request) {
         sendMessageUseCase.sendMessage(request.toCommand());
-        return ResponseEntity.accepted().build();
+        return accepted()
+                .build();
     }
 }

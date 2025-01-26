@@ -1,6 +1,5 @@
 package kr.co.kwt.messageapi.adapter;
 
-import kr.co.kwt.messageapi.application.port.out.SaveMessagePort;
 import kr.co.kwt.messageapi.domain.message.Channel;
 import kr.co.kwt.messageapi.domain.message.Message;
 import kr.co.kwt.messageapi.domain.message.Type;

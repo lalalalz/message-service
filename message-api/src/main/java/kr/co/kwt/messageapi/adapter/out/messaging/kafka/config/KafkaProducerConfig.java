@@ -43,7 +43,7 @@ public class KafkaProducerConfig {
     private String saslJaasConfig;
 
     @Bean
-    public ProducerFactory<String, Message> producerFactory() {
+    public ProducerFactory<Long, Message> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -60,7 +60,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Message> kafkaTemplate() {
+    public KafkaTemplate<Long, Message> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
