@@ -6,13 +6,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static kr.co.kwt.messageapi.domain.message.Option.OptionType.valueOf;
 
 @NoArgsConstructor
 public class MessageBuilder {
 
-    private Long id;
+    private UUID id;
     private Type type;
     private Channel channel;
     private Header header;
@@ -27,7 +28,7 @@ public class MessageBuilder {
         this.from = from;
     }
 
-    public MessageBuilder id(Long id) {
+    public MessageBuilder id(UUID id) {
         this.id = id;
         return this;
     }

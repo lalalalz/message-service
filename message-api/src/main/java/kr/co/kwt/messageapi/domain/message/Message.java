@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static kr.co.kwt.messageapi.domain.error.Assert.*;
 import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.*;
@@ -15,7 +17,7 @@ import static lombok.AccessLevel.PACKAGE;
 @AllArgsConstructor(access = PACKAGE)
 public class Message {
 
-    private Long id;
+    private UUID id;
     private Type type;
     private Channel channel;
     private Header header;
@@ -75,6 +77,13 @@ public class Message {
         isTerminatedStatus();
         isChannelDefined();
         newTo.validate(channel);
+    }
+
+    public Optional<Option> getOption(Option.OptionType optionType) {
+        return options
+                .stream()
+                .filter(option -> option.getType().equals(optionType))
+                .findFirst();
     }
 
     public void validateMessage() {

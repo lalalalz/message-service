@@ -1,6 +1,6 @@
 package kr.co.kwt.messageapi.adapter.out.messaging.kafka.config;
 
-import kr.co.kwt.messageapi.domain.message.Message;
+import kr.co.kwt.messageapi.application.port.out.CreateMessageEvent;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
@@ -15,6 +15,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Configuration
 public class KafkaProducerConfig {
@@ -43,7 +44,7 @@ public class KafkaProducerConfig {
     private String saslJaasConfig;
 
     @Bean
-    public ProducerFactory<Long, Message> producerFactory() {
+    public ProducerFactory<UUID, CreateMessageEvent> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -60,7 +61,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<Long, Message> kafkaTemplate() {
+    public KafkaTemplate<UUID, CreateMessageEvent> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

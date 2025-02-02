@@ -1,9 +1,9 @@
 package kr.co.kwt.messageapi.adapter.out.messaging.kafka;
 
-import kr.co.kwt.messageapi.application.port.out.MessageProducerPort;
+import kr.co.kwt.messageapi.application.port.out.CreateMessageEvent;
+import kr.co.kwt.messageapi.application.port.out.CreateMessageEventPort;
 import kr.co.kwt.messageapi.common.exception.MessageSendException;
 import kr.co.kwt.messageapi.domain.message.Channel;
-import kr.co.kwt.messageapi.domain.message.Message;
 import kr.co.kwt.messageapi.domain.message.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,15 +12,16 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaMessageProducerPort implements MessageProducerPort {
+public class KafkaCreateMessageEventPort implements CreateMessageEventPort {
 
-    private final KafkaTemplate<Long, Message> kafkaTemplate;
+    private final KafkaTemplate<UUID, CreateMessageEvent> kafkaTemplate;
 
     @Value("${kafka.topic.informational.email}")
     private String informationalEmailTopic;
@@ -35,33 +36,35 @@ public class KafkaMessageProducerPort implements MessageProducerPort {
     private String advertisingPushTopic;
 
     @Override
-    public void send(Message message) {
-        String topic = getTopicByMessageTypeAndPurpose(message.getType(), message.getChannel());
+    public void publish(CreateMessageEvent createMessageEvent) {
+        String topic = getTopicByMessageTypeAndPurpose(
+                Type.valueOf(createMessageEvent.getType()),
+                Channel.valueOf(createMessageEvent.getChannel()));
 
         try {
             kafkaTemplate
-                    .send(topic, message.getId(), message)
+                    .send(topic, createMessageEvent.getId(), createMessageEvent)
                     .thenAccept(doSuccessLogging())
-                    .exceptionally(doFailureLogging(message, topic));
+                    .exceptionally(doFailureLogging(createMessageEvent, topic));
         }
         catch (Exception e) {
             log.error("Error occurred while sending message. Topic: {}, Message: {}, Error: {}",
-                    topic, message, e.getMessage(), e);
+                    topic, createMessageEvent, e.getMessage(), e);
             throw new MessageSendException("Failed to send message", e);
         }
     }
 
-    private Consumer<SendResult<Long, Message>> doSuccessLogging() {
+    private Consumer<SendResult<UUID, CreateMessageEvent>> doSuccessLogging() {
         return (result) -> log.info("Message sent successfully. Topic: {}, Key: {}, Message: {}",
                 result.getProducerRecord().topic(),
                 result.getProducerRecord().key(),
                 result.getProducerRecord().value());
     }
 
-    private Function<Throwable, Void> doFailureLogging(Message message, String topic) {
+    private Function<Throwable, Void> doFailureLogging(CreateMessageEvent createMessageEvent, String topic) {
         return (ex) -> {
             log.error("Failed to send message. Topic: {}, Message: {}, Error: {}",
-                    topic, message, ex.getMessage(), ex);
+                    topic, createMessageEvent, ex.getMessage(), ex);
             return null;
         };
     }
