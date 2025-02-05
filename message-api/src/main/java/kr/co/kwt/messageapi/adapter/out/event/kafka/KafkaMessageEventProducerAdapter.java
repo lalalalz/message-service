@@ -1,23 +1,20 @@
-package kr.co.kwt.messageapi.adapter.out.messaging.kafka;
+package kr.co.kwt.messageapi.adapter.out.event.kafka;
 
-import kr.co.kwt.messageapi.application.port.out.MessageProducerPort;
+import kr.co.kwt.messageapi.application.port.out.MessageEventProducerPort;
+import kr.co.kwt.messageapi.application.port.out.SaveMessageEvent;
 import kr.co.kwt.messageapi.common.exception.MessageSendException;
 import kr.co.kwt.messageapi.domain.message.Channel;
-import kr.co.kwt.messageapi.domain.message.Message;
 import kr.co.kwt.messageapi.domain.message.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaMessageProducerPort implements MessageProducerPort {
-    private final KafkaTemplate<String, Message> kafkaTemplate;
-    private final Environment environment;
+public class KafkaMessageEventProducerAdapter implements MessageEventProducerPort {
 
     @Value("${kafka.topic.informational.email}")
     private String informationalEmailTopic;
@@ -31,25 +28,29 @@ public class KafkaMessageProducerPort implements MessageProducerPort {
     @Value("${kafka.topic.advertising.push}")
     private String advertisingPushTopic;
 
+    private final KafkaTemplate<String, SaveMessageEvent> kafkaTemplate;
+
     @Override
-    public void send(Message message) {
-        String topic = getTopicByMessageTypeAndPurpose(message.getType().name(), message.getChannel().name());
+    public void send(SaveMessageEvent saveMessageEvent) {
+        String topic = getTopicByMessageTypeAndPurpose(saveMessageEvent.getType(), saveMessageEvent.getChannel());
 
         try {
             kafkaTemplate
-                    .send(topic, message.getTo().getIdentity(), message)
+                    .send(topic, saveMessageEvent.getId().toString(), saveMessageEvent)
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
-                            log.info("Message sent successfully. Topic: {}, Message: {}", topic, message);
+                            log.info("Message sent successfully. Topic: {}, MessageId: {}",
+                                    topic, saveMessageEvent.getId());
                         }
                         else {
-                            log.error("Failed to send message. Topic: {}, Message: {}, Error: {}",
-                                    topic, message, ex.getMessage(), ex);
+                            log.error("Failed to send message. Topic: {}, MessageId: {}, Error: {}",
+                                    topic, saveMessageEvent.getId(), ex.getMessage(), ex);
                         }
                     });
-        } catch (Exception e) {
-            log.error("Error occurred while sending message. Topic: {}, Message: {}, Error: {}",
-                    topic, message, e.getMessage(), e);
+        }
+        catch (Exception e) {
+            log.error("Error occurred while sending message. Topic: {}, MessageId: {}, Error: {}",
+                    topic, saveMessageEvent.getId(), e.getMessage(), e);
             throw new MessageSendException("Failed to send message", e);
         }
     }
@@ -62,12 +63,10 @@ public class KafkaMessageProducerPort implements MessageProducerPort {
             case INFORMATIONAL -> switch (channel) {
                 case EMAIL -> informationalEmailTopic;
                 case PUSH -> informationalPushTopic;
-                default -> throw new IllegalStateException("Unexpected value: " + channel);
             };
             case ADVERTISING -> switch (channel) {
                 case EMAIL -> advertisingEmailTopic;
                 case PUSH -> advertisingPushTopic;
-                default -> throw new IllegalStateException("Unexpected value: " + channel);
             };
         };
     }

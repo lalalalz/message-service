@@ -1,39 +1,26 @@
 package kr.co.kwt.messageapi.domain.message;
 
-import kr.co.kwt.messageapi.domain.error.Assert;
 import lombok.Value;
 
 import java.time.LocalDateTime;
 
-import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.STATUS_UNMODIFIABLE;
-
 @Value
 public class Status {
 
-    public static Status PENDING = new Status(Stage.PENDING, LocalDateTime.now());
+    public static final Status PENDING = new Status(Stage.PENDING, Retry.DEFAULT, LocalDateTime.now());
+    public static final Status CANCELED = new Status(Stage.CANCELED, Retry.DEFAULT, LocalDateTime.now());
+    public static final Status FAILED = new Status(Stage.FAILED, Retry.DEFAULT, LocalDateTime.now());
 
     Stage stage;
+    Retry retry;
     LocalDateTime updatedAt;
 
-    public Status next() {
-        return new Status(stage.next(), LocalDateTime.now());
-    }
-
-    public boolean isTerminated() {
-        return !(stage == Stage.PENDING || stage == Stage.SENDING);
-    }
-
-    public void validateTerminatedStatus() {
-        Assert.isTrue(isTerminated(), STATUS_UNMODIFIABLE);
-    }
-
-    public enum Stage {
+    enum Stage {
         PENDING,    // 발송 대기
         SENDING,    // 발송 중
         SENT,       // 발송 완료
         DELIVERED,  // 수신 완료
         FAILED,     // 발송 실패
-        EXPIRED,    // 만료됨
         CANCELED,   // 취소됨
         ;
 
@@ -43,6 +30,17 @@ public class Status {
                 case SENDING, SENT -> SENT;
                 default -> this;
             };
+        }
+    }
+
+    @Value
+    static class Retry {
+        static final Retry DEFAULT = new Retry(1);
+
+        Integer count;
+
+        Retry next() {
+            return new Retry(count + 1);
         }
     }
 }

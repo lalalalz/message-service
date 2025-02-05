@@ -1,4 +1,4 @@
-package kr.co.kwt.messageapi.domain.error;
+package kr.co.kwt.messageapi.domain.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.DEFAULT;
+import static kr.co.kwt.messageapi.domain.message.DomainException.ErrorCode.DEFAULT;
 
 public class DomainException extends RuntimeException {
 
@@ -41,6 +41,9 @@ public class DomainException extends RuntimeException {
     public enum ErrorCode {
         DEFAULT("메시지 도메인 예외가 발생했습니다."),
 
+        // ID
+        ID_UNDEFINED("아이디가 지정되지 않았습니다."),
+
         // Options
         OPTION_DUPLICATED("옵션이 중복 되었습니다!"),
         OPTION_INVALID("유효하지 않은 옵션입니다"),
@@ -48,12 +51,13 @@ public class DomainException extends RuntimeException {
         OPTION_RESERVATION_INVALID_VALUE("예약 옵션의 시간값이 유효하지 않습니다."),
         OPTION_RESERVATION_BEFORE_TIME("예약 옵션의 시간은 현재 이후의 시간이어야 합니다."),
         OPTION_RETRY_INVALID_COUNT("유효하지 않은 재시도 요청수 입니다."),
-        OPTION_MAX_LIMIT("옵션은 최대 3개만 지정이 가능합니다."),
+        OPTION_COUNT_RANGE("옵션은 0~3개만 지정이 가능합니다."),
         OPTION_UNDEFINED("옵션이 지정되지 않았습니다."),
 
         // Status
         STATUS_UNMODIFIABLE("이미 처리된 메시지는 수정할 수 없습니다."),
         STATUS_UNDEFINED("상태값이 지정되지 않았습니다."),
+        STATUS_ATTEMPT_MAX("더 이상 재시도할 수 없습니다."),
 
         // Header
         HEADER_INVALID_LENGTH("메시지의 제목은 1자 이상 300자 이하이어야 합니다."),

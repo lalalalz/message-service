@@ -1,5 +1,6 @@
-package kr.co.kwt.messageapi.domain.error;
+package kr.co.kwt.messageapi.common.assertion;
 
+import kr.co.kwt.messageapi.domain.message.DomainException;
 import org.springframework.lang.Contract;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
