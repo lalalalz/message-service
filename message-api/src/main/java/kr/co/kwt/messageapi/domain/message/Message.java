@@ -2,18 +2,28 @@ package kr.co.kwt.messageapi.domain.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static kr.co.kwt.messageapi.domain.error.Assert.*;
-import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.*;
+import static kr.co.kwt.messageapi.domain.message.DomainException.ErrorCode.STATUS_UNMODIFIABLE;
+import static kr.co.kwt.messageapi.domain.message.Status.Retry;
+import static kr.co.kwt.messageapi.domain.message.Status.Stage;
+import static kr.co.kwt.messageapi.domain.message.Status.Stage.PENDING;
+import static kr.co.kwt.messageapi.domain.message.Status.Stage.SENDING;
 import static lombok.AccessLevel.PACKAGE;
 
+@Document(collation = "messages")
 @Getter
 @AllArgsConstructor(access = PACKAGE)
 public class Message {
 
-    private Long id;
+    private static final int MAX_RETRY_COUNT = 3;
+
+    @Id
+    private UUID id;
     private Type type;
     private Channel channel;
     private Header header;
@@ -21,84 +31,87 @@ public class Message {
     private From from;
     private To to;
     private Status status;
-    private List<Option> options;
+    private Option option;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
+    /**
+     * <h2>builder 정적 팩토리 메소드</h2>
+     */
     public static MessageBuilder emptyBuilder() {
         return new MessageBuilder();
     }
 
     public static MessageBuilder defaultBuilder() {
-        return new MessageBuilder(Status.PENDING, From.SYSTEM);
+        return new MessageBuilder(UUID.randomUUID(), Status.PENDING, From.SYSTEM);
     }
 
-    public void addOption(Option newOption) {
-        isTerminatedStatus();
-        hasExceededOptionLimit();
-        options.add(newOption);
+    /**
+     * <h2>status 제어 메소드</h2>
+     * <p>1. advanced : 현재 발송 상태를 진전시킨다.</p>
+     * <p>2. suspend : 전진에 실패했을 때, 상태를 유보한다. (재시도 카운트 1증가)</p>
+     * <p>3. fail : 현재 발송 상태를 실패로 처리한다. (재시도 모두 실패했을 경우, 자동으로 실패처리)</p>
+     * <p>4. cancel : 현재 발송 상태를 취소로 처리한다. (단, PENDING 상태에서만 가능)</p>
+     */
+    public void advance() {
+        validateTerminatedStatus();
+        status = new Status(status.getStage().next(), Retry.DEFAULT, LocalDateTime.now());
+        updatedAt = LocalDateTime.now();
     }
 
-    public void changeChannel(Channel newChannel) {
-        isTerminatedStatus();
-        channel = newChannel;
+    public void suspend() {
+        validateTerminatedStatus();
+        validateMaxRetry();
+        status = new Status(status.getStage(), status.getRetry().next(), LocalDateTime.now());
+        updatedAt = LocalDateTime.now();
     }
 
-    public void changeType(Type newType) {
-        isTerminatedStatus();
-        type = newType;
+    public void fail() {
+        validateTerminatedStatus();
+        status = new Status(Stage.FAILED, Retry.DEFAULT, LocalDateTime.now());
+        updatedAt = LocalDateTime.now();
     }
 
-    public void changeHeader(Header newHeader) {
-        isTerminatedStatus();
-        newHeader.validate();
-        header = newHeader;
+    public void cancel() {
+        validateTerminatedStatus();
+        status = new Status(Stage.CANCELED, Retry.DEFAULT, LocalDateTime.now());
+        updatedAt = LocalDateTime.now();
     }
 
-    public void changeBody(Body newBody) {
-        isTerminatedStatus();
-        newBody.validate();
-        body = newBody;
+    private void validateTerminatedStatus() {
+        if (status.getStage() == PENDING || status.getStage() == SENDING) {
+            return;
+        }
+
+        throw new DomainException(STATUS_UNMODIFIABLE);
     }
 
-    public void changeStatus(Status newStatus) {
-        isTerminatedStatus();
-        status = newStatus;
+    private void validateMaxRetry() {
+        if (status.getRetry().getCount() >= MAX_RETRY_COUNT) {
+            throw new DomainException();
+        }
     }
 
-    public void changeFrom(From newFrom) {
-        isTerminatedStatus();
-        from = newFrom;
+    /**
+     * <h2>Option 관련 메소드</h2>
+     */
+    public Option.Reservation getReservationOption() {
+        return option.getReservation();
     }
 
-    public void changeTo(To newTo) {
-        isTerminatedStatus();
-        isChannelDefined();
-        newTo.validate(channel);
+    public Option.Priority getPriorityOption() {
+        return option.getPriority();
     }
 
-    public void validateMessage() {
-        notNull(channel, CHANNEL_UNDEFINED);
-        notNull(header, HEADER_UNDEFINED);
-        notNull(body, BODY_UNDEFINED);
-        notNull(from, FROM_UNDEFINED);
-        notNull(to, TO_UNDEFINED);
-        notNull(status, STATUS_UNDEFINED);
-        notNull(options, OPTION_UNDEFINED);
-
-        options.forEach(Option::validate);
-        header.validate();
-        body.validate();
-        to.validate(channel);
+    public void changeReservationOption(Option.Reservation reservation) {
+        validateTerminatedStatus();
+        option = new Option(reservation, option.getPriority());
+        updatedAt = LocalDateTime.now();
     }
 
-    private void isChannelDefined() {
-        isNull(type, CHANNEL_INVALID);
-    }
-
-    private void hasExceededOptionLimit() {
-        isTrue(options.size() >= 3, OPTION_MAX_LIMIT);
-    }
-
-    private void isTerminatedStatus() {
-        isTrue(status.isTerminated(), STATUS_UNMODIFIABLE);
+    public void changePriorityOption(Option.Priority priority) {
+        validateTerminatedStatus();
+        option = new Option(option.getReservation(), priority);
+        updatedAt = LocalDateTime.now();
     }
 }

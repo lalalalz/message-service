@@ -1,10 +1,9 @@
 package kr.co.kwt.messageapi.domain.message;
 
-import kr.co.kwt.messageapi.domain.error.Assert;
-import kr.co.kwt.messageapi.domain.error.DomainException;
+import kr.co.kwt.messageapi.common.assertion.Assert;
 import lombok.Value;
 
-import static kr.co.kwt.messageapi.domain.error.DomainException.ErrorCode.*;
+import static kr.co.kwt.messageapi.domain.message.DomainException.ErrorCode.*;
 
 @Value
 public class To {

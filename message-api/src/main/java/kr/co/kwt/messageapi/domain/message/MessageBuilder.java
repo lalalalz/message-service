@@ -3,16 +3,14 @@ package kr.co.kwt.messageapi.domain.message;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import static kr.co.kwt.messageapi.domain.message.Option.OptionType.valueOf;
+import static kr.co.kwt.messageapi.domain.message.Status.Stage;
 
 @NoArgsConstructor
 public class MessageBuilder {
 
-    private Long id;
+    private UUID id;
     private Type type;
     private Channel channel;
     private Header header;
@@ -20,14 +18,19 @@ public class MessageBuilder {
     private From from;
     private To to;
     private Status status;
-    private List<Option> options = new ArrayList<>();
+    private Option option;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public MessageBuilder(Status status, From from) {
+    public MessageBuilder(UUID id, Status status, From from) {
+        this.id = id;
         this.status = status;
         this.from = from;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public MessageBuilder id(Long id) {
+    public MessageBuilder id(UUID id) {
         this.id = id;
         return this;
     }
@@ -62,24 +65,33 @@ public class MessageBuilder {
         return this;
     }
 
-    public MessageBuilder status(String stage, LocalDateTime updatedAt) {
-        this.status = new Status(Status.Stage.valueOf(stage), updatedAt);
+    public MessageBuilder status(String stage, Integer retryCount, LocalDateTime updatedAt) {
+        this.status = new Status(Stage.valueOf(stage), new Status.Retry(retryCount), updatedAt);
         return this;
     }
 
-    public MessageBuilder options(Map<String, String> options) {
-        this.options = options
-                .entrySet()
-                .stream()
-                .map(entry -> new Option(valueOf(entry.getKey()), entry.getValue()))
-                .toList();
+    public MessageBuilder reservation(LocalDateTime reservedAt) {
+        this.option = new Option(new Option.Reservation(reservedAt), option.getPriority());
+        return this;
+    }
 
+    public MessageBuilder priority(String priority) {
+        this.option = new Option(option.getReservation(), Option.Priority.valueOf(priority));
+        return this;
+    }
+
+    public MessageBuilder createdAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public MessageBuilder updatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
         return this;
     }
 
     public Message build() {
-        Message message = new Message(id, type, channel, header, body, from, to, status, options);
-        message.validateMessage();
-        return message;
+        // TODO 유효성 체크....
+        return new Message(id, type, channel, header, body, from, to, status, option, createdAt, updatedAt);
     }
 }
