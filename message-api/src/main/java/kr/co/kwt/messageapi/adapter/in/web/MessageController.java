@@ -1,8 +1,8 @@
 package kr.co.kwt.messageapi.adapter.in.web;
 
+import kr.co.kwt.messagecore.application.port.in.SendMessageResult;
+import kr.co.kwt.messagecore.application.port.in.SendMessageUseCase;
 import kr.co.kwt.messageapi.adapter.in.web.dto.SendMessageRequest;
-import kr.co.kwt.messageapi.application.port.in.SendMessageResult;
-import kr.co.kwt.messageapi.application.port.in.SendMessageUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/messages")
 @RequiredArgsConstructor
 public class MessageController {
+
     private final SendMessageUseCase sendMessageUseCase;
 
     @PostMapping("/send")

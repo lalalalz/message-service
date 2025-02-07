@@ -1,1 +1,5 @@
 rootProject.name = 'message-service'
+include 'message-core'
+include 'message-infra'
+include 'message-api'
+include 'message-agent'
