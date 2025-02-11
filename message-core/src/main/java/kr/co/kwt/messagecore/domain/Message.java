@@ -12,7 +12,7 @@ import static kr.co.kwt.messagecore.domain.DomainException.ErrorCode.STATUS_UNMO
 import static kr.co.kwt.messagecore.domain.Status.*;
 import static lombok.AccessLevel.PACKAGE;
 
-@Document(collation = "messages")
+@Document(collection = "messages")  // 올바른 사용법
 @Getter
 @AllArgsConstructor(access = PACKAGE)
 public class Message {
@@ -75,7 +75,7 @@ public class Message {
         updatedAt = LocalDateTime.now();
     }
 
-    private void validateTerminatedStatus() {
+    public void validateTerminatedStatus() {
         if (status.getStage() == Stage.PENDING || status.getStage() == Stage.SENDING) {
             return;
         }

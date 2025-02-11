@@ -1,11 +1,12 @@
 dependencies {
-    implementation(project(':message-core'))
-    implementation(project(':message-infra'))
+    implementation project(':message-core')
+    implementation project(':message-infra')
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    implementation 'org.springframework.kafka:spring-kafka'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

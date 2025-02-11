@@ -1,0 +1,2 @@
+kr.co.kwt.messageinfra.adapter.config.kafka.KafkaAutoConfiguration
+kr.co.kwt.messageinfra.adapter.config.mongodb.MongoAutoConfiguration

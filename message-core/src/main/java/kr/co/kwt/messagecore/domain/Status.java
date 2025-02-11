@@ -15,7 +15,7 @@ public class Status {
     Retry retry;
     LocalDateTime updatedAt;
 
-    enum Stage {
+    public enum Stage {
         PENDING,    // 발송 대기
         SENDING,    // 발송 중
         SENT,       // 발송 완료
@@ -34,7 +34,7 @@ public class Status {
     }
 
     @Value
-    static class Retry {
+    public static class Retry {
         static final Retry DEFAULT = new Retry(1);
 
         Integer count;

@@ -1,58 +1,68 @@
 package kr.co.kwt.messagecore.application.service;
 
-import kr.co.kwt.messagecore.application.port.in.SendMessageCommand;
-import kr.co.kwt.messagecore.application.port.in.SendMessageResult;
+import kr.co.kwt.messagecore.application.port.in.MessageSendAgent;
 import kr.co.kwt.messagecore.application.port.in.SendMessageUseCase;
-import kr.co.kwt.messagecore.application.port.out.MessageEventProducerPort;
-import kr.co.kwt.messagecore.application.port.out.SaveMessageEvent;
+import kr.co.kwt.messagecore.application.port.out.LoadMessagePort;
 import kr.co.kwt.messagecore.application.port.out.SaveMessagePort;
+import kr.co.kwt.messagecore.domain.DomainException;
 import kr.co.kwt.messagecore.domain.Message;
-import jakarta.validation.Valid;
+import kr.co.kwt.messagecore.domain.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+import static kr.co.kwt.messagecore.application.service.BusinessException.ErrorCode;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class SendMessageService implements SendMessageUseCase {
+class SendMessageService implements SendMessageUseCase {
 
+    private final LoadMessagePort loadMessagePort;
     private final SaveMessagePort saveMessagePort;
-    private final MessageEventProducerPort messageEventProducerPort;
 
     @Override
-    public SendMessageResult sendMessage(@Valid SendMessageCommand sendMessageCommand) {
-        log.info("sendMessageCommand : {}", sendMessageCommand);
-        Message message = createMessage(sendMessageCommand);
-        doSendMessage(message);
-
-        return SendMessageResult
-                .builder()
-                .messageId(message.getId())
-                .sentAt(message.getCreatedAt())
-                .build();
+    public void sendMessage(UUID id, MessageSendAgent agent) {
+        Message message = getMessage(id);
+        validateTerminatedStatus(message);
+        doSend(message, agent);
     }
 
-    private Message createMessage(SendMessageCommand sendMessageCommand) {
-        return Message
-                .defaultBuilder()
-                .type(sendMessageCommand.getType())
-                .channel(sendMessageCommand.getChannel())
-                .header(sendMessageCommand.getTitle())
-                .body(sendMessageCommand.getContent(), sendMessageCommand.getImage())
-                .to(sendMessageCommand.getTo())
-                .build();
+    private void doSend(Message message, MessageSendAgent agent) {
+        try {
+            if (isPendingStatus(message)) {
+                message.advance();
+            }
+            agent.run(message.getId());
+            message.advance();
+        }
+        catch (Exception e) {
+            message.suspend();
+            throw new BusinessException(ErrorCode.SEND_AGENT_ERROR, e);
+        }
+        finally {
+            saveMessagePort.save(message);
+        }
     }
 
-    private void doSendMessage(Message message) {
-        saveMessagePort.save(message);
-        messageEventProducerPort.send(SaveMessageEvent
-                .builder()
-                .id(message.getId())
-                .type(message.getType().name())
-                .channel(message.getChannel().name())
-                .build());
+    private Message getMessage(UUID id) {
+        return loadMessagePort
+                .findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SCH_INVALID_ID));
+    }
+
+    private void validateTerminatedStatus(Message message) {
+        try {
+            message.validateTerminatedStatus();
+        }
+        catch (DomainException e) {
+            throw new BusinessException(ErrorCode.SEND_TERMINATED_STATUS);
+        }
+    }
+
+    private boolean isPendingStatus(Message message) {
+        return message.getStatus().getStage().equals(Status.Stage.PENDING);
     }
 }

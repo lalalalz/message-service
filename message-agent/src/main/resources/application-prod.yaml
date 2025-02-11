@@ -3,14 +3,14 @@ spring:
     activate:
       on-profile: prod
 
-  data:
-    mongodb:
-      host: 192.168.100.100
-      port: 31017
-      authentication-database: admin
-      username: root
-      password: devqlalfqjsgh486
-      database: message
+mongodb:
+  host: 192.168.100.100
+  port: 31017
+  authentication-database: admin
+  username: root
+  password: devqlalfqjsgh486
+  database: message
+
 
 # kafka
 kafka:
