@@ -2,8 +2,6 @@ package kr.co.kwt.messageagent.event;
 
 import kr.co.kwt.messageagent.service.EmailService;
 import kr.co.kwt.messageagent.service.PushService;
-import kr.co.kwt.messagecore.application.port.in.SearchMessageUseCase;
-import kr.co.kwt.messagecore.application.port.in.SendMessageUseCase;
 import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
 import kr.co.kwt.messagecore.application.port.out.event.SaveMessageEvent;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,6 @@ public class SaveMessageEventConsumer {
 
     private final PushService pushService;
     private final EmailService emailService;
-    private final SendMessageUseCase sendMessageUseCase;
-    private final SearchMessageUseCase searchMessageUseCase;
 
     @KafkaListener(topics = "${kafka.topic.informational.email}")
     public void consumeInformationalEmail(ConsumerRecord<String, MessageEvent> record) {
@@ -34,13 +30,15 @@ public class SaveMessageEventConsumer {
         emailService.sendEmail(messageEvent);
     }
 
-    @KafkaListener(topics = "${kafka.topic.informational.email}")
+    @KafkaListener(topics = "${kafka.topic.informational.push}")
     public void consumeInformationalPush(ConsumerRecord<String, SaveMessageEvent> record) {
-//        pushService.sendPush(record.value());
+//        MessageEvent messageEvent = record.value();
+//        emailService.sendEmail(messageEvent);
     }
 
     @KafkaListener(topics = "${kafka.topic.advertising.push}")
     public void consumeAdvertisingPush(ConsumerRecord<String, SaveMessageEvent> record) {
+//        MessageEvent messageEvent = record.value();
 //        pushService.sendPush(record.value());
     }
 }
