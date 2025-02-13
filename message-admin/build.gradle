@@ -1,0 +1,18 @@
+dependencies {
+    implementation project(':message-core')
+    implementation project(':message-infra')
+
+    implementation 'co.kr.kwt.starter.kms:module-kms:0.0.1-SNAPSHOT'  // module -> moduel
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
