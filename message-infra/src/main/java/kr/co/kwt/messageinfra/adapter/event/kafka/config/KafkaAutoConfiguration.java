@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.adapter.config.kafka;
+package kr.co.kwt.messageinfra.adapter.event.kafka.config;
 
 import jakarta.annotation.PostConstruct;
 import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;

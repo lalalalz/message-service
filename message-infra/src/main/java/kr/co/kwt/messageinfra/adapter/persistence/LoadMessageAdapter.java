@@ -1,9 +1,11 @@
-package kr.co.kwt.messageinfra.adapter;
+package kr.co.kwt.messageinfra.adapter.persistence;
 
 import kr.co.kwt.messagecore.application.port.out.LoadMessagePort;
 import kr.co.kwt.messagecore.domain.Message;
 import kr.co.kwt.messageinfra.adapter.persistence.mongo.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -18,5 +20,10 @@ class LoadMessageAdapter implements LoadMessagePort {
     @Override
     public Optional<Message> findById(UUID id) {
         return messageRepository.findById(id);
+    }
+
+    @Override
+    public Page<Message> findAll(Pageable pageable) {
+        return messageRepository.findAll(pageable);
     }
 }

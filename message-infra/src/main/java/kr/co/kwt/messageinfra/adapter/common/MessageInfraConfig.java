@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.adapter.config;
+package kr.co.kwt.messageinfra.adapter.common;
 
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Configuration;

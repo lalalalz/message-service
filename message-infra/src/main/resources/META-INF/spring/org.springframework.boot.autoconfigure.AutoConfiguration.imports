@@ -1,2 +1,2 @@
-kr.co.kwt.messageinfra.adapter.config.kafka.KafkaAutoConfiguration
-kr.co.kwt.messageinfra.adapter.config.mongodb.MongoAutoConfiguration
+kr.co.kwt.messageinfra.adapter.event.kafka.config.KafkaAutoConfiguration
+kr.co.kwt.messageinfra.adapter.persistence.mongo.config.MongoAutoConfiguration

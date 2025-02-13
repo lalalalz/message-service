@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.adapter;
+package kr.co.kwt.messageinfra.adapter.persistence;
 
 import kr.co.kwt.messagecore.application.port.out.SaveMessagePort;
 import kr.co.kwt.messagecore.domain.Message;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SaveMessageAdapter implements SaveMessagePort {
+class SaveMessageAdapter implements SaveMessagePort {
 
     private final MessageRepository messageRepository;
 

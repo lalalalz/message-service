@@ -4,6 +4,8 @@ import kr.co.kwt.messagecore.application.port.in.SearchMessageUseCase;
 import kr.co.kwt.messagecore.application.port.in.query.SearchMessageResult;
 import kr.co.kwt.messagecore.application.port.out.LoadMessagePort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -22,5 +24,12 @@ class SearchMessageService implements SearchMessageUseCase {
                 .findById(id)
                 .map(SearchMessageResult::of)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SCH_INVALID_ID));
+    }
+
+    @Override
+    public Page<SearchMessageResult> searchMessages(Pageable pageable) {
+        return loadMessagePort
+                .findAll(pageable)
+                .map(SearchMessageResult::of);
     }
 }

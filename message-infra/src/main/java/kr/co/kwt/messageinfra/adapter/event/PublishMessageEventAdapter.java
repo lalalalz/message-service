@@ -1,10 +1,10 @@
-package kr.co.kwt.messageinfra.adapter.event.kafka;
+package kr.co.kwt.messageinfra.adapter.event;
 
 import kr.co.kwt.messagecore.application.port.out.PublishMessageEventPort;
 import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
 import kr.co.kwt.messagecore.domain.Channel;
 import kr.co.kwt.messagecore.domain.Type;
-import kr.co.kwt.messageinfra.common.MessageSendException;
+import kr.co.kwt.messageinfra.adapter.common.MessageSendException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaPublishMessageEventAdapter implements PublishMessageEventPort {
+public class PublishMessageEventAdapter implements PublishMessageEventPort {
 
     @Value("${kafka.topic.informational.email}")
     private String informationalEmailTopic;

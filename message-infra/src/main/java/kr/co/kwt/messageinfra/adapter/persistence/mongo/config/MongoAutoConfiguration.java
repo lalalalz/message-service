@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.adapter.config.mongodb;
+package kr.co.kwt.messageinfra.adapter.persistence.mongo.config;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;

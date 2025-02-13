@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.common;
+package kr.co.kwt.messageinfra.adapter.common;
 
 public class MessageSendException extends RuntimeException {
     public MessageSendException(String message) {

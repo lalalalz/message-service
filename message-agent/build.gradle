@@ -2,6 +2,8 @@ dependencies {
     implementation project(':message-core')
     implementation project(':message-infra')
 
+    implementation 'co.kr.kwt.starter.kms:module-kms:0.0.1-SNAPSHOT'  // module -> moduel
+
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

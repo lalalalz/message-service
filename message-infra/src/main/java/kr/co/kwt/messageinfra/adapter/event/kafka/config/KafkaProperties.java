@@ -1,4 +1,4 @@
-package kr.co.kwt.messageinfra.adapter.config.kafka;
+package kr.co.kwt.messageinfra.adapter.event.kafka.config;
 
 import lombok.Getter;
 import lombok.Setter;
