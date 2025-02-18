@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>메시지 상세 정보</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff9d;
+            --primary-dark: #00cc7d;
+            --background: #1a1a1a;
+            --surface: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #a0a0a0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            padding: 2rem;
+        }
+
+        .detail-container {
+            background-color: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .detail-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+
+        .status-success {
+            background-color: rgba(0, 255, 157, 0.2);
+            color: var(--primary);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-failed {
+            background-color: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .message-body {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            white-space: pre-wrap;
+        }
+
+        .close-button {
+            background-color: var(--surface);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .retry-button {
+            background-color: var(--primary);
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-button:hover {
+            background-color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+<div class="detail-container">
+    <div class="detail-header flex justify-between items-center">
+        <h1 class="detail-title">메시지 상세 정보</h1>
+        <div class="space-x-2">
+            <button id="retryButton" class="retry-button" style="display: none;">재발송</button>
+            <button onclick="window.close()" class="close-button">닫기</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div class="detail-section">
+            <div class="detail-label">메시지 ID</div>
+            <div id="messageId" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">발송 상태</div>
+            <div id="messageStatus" class="detail-value">
+                <span class="status-badge">-</span>
+            </div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">발송 유형</div>
+            <div id="messageType" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">메시지 채널</div>
+            <div id="messageChannel" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">수신자</div>
+            <div id="recipientEmail" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">발송자</div>
+            <div id="senderEmail" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">생성 시간</div>
+            <div id="createdAt" class="detail-value">-</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">수정 시간</div>
+            <div id="updatedAt" class="detail-value">-</div>
+        </div>
+    </div>
+
+    <div class="detail-section col-span-2">
+        <div class="detail-label">제목</div>
+        <div id="messageHeader" class="detail-value">-</div>
+    </div>
+
+    <div class="detail-section col-span-2">
+        <div class="detail-label">메시지 내용</div>
+        <div id="messageBody" class="message-body">-</div>
+    </div>
+
+    <div id="imageSection" class="detail-section col-span-2" style="display: none;">
+        <div class="detail-label">첨부 이미지</div>
+        <img id="messageImage" class="max-w-full rounded-lg" src="" alt="첨부 이미지">
+    </div>
+</div>
+
+<script>
+    // 현재 URL에서 메시지 ID 추출
+    const urlParts = window.location.pathname.split('/');
+    const messageId = urlParts[urlParts.length - 1];
+
+    // API로 메시지 상세 정보 조회
+    async function loadMessageDetail() {
+        try {
+            const response = await fetch(`/api/message/${messageId}`);
+            if (!response.ok) {
+                throw new Error('메시지 조회에 실패했습니다');
+            }
+
+            const message = await response.json();
+
+            // 기본 정보 설정
+            document.getElementById('messageId').textContent = message.id;
+            document.getElementById('messageType').textContent = message.type;
+            document.getElementById('messageChannel').textContent = message.channel;
+            document.getElementById('recipientEmail').textContent = message.to;
+            document.getElementById('senderEmail').textContent = message.from;
+            document.getElementById('messageHeader').textContent = message.header;
+            document.getElementById('messageBody').textContent = message.body;
+            document.getElementById('createdAt').textContent = formatDate(message.createdAt);
+            document.getElementById('updatedAt').textContent = formatDate(message.updatedAt);
+
+            // 상태 배지 설정
+            const statusBadge = document.querySelector('#messageStatus .status-badge');
+            statusBadge.textContent = getStatusText(message.stage);
+            statusBadge.className = `status-badge ${getStatusBadgeClass(message.stage)}`;
+
+            // 재발송 버튼 표시 여부
+            const retryButton = document.getElementById('retryButton');
+            if (message.stage !== 'SENT') {
+                retryButton.style.display = 'inline-block';
+                retryButton.onclick = () => resendMessage(message.id);
+            }
+
+            // 이미지 처리
+            const imageSection = document.getElementById('imageSection');
+            const messageImage = document.getElementById('messageImage');
+            if (message.image) {
+                imageSection.style.display = 'block';
+                messageImage.src = message.image;
+            }
+        } catch (error) {
+            console.error('Error loading message details:', error);
+            alert('메시지 상세 정보를 불러오는데 실패했습니다.');
+        }
+    }
+
+    // 상태 텍스트 변환
+    function getStatusText(stage) {
+        const statusMap = {
+            'SENT': '발송 완료',
+            'PENDING': '대기 중',
+            'FAILED': '실패'
+        };
+        return statusMap[stage] || stage;
+    }
+
+    // 상태 배지 스타일
+    function getStatusBadgeClass(stage) {
+        const classMap = {
+            'SENT': 'status-success',
+            'PENDING': 'status-pending',
+            'FAILED': 'status-failed'
+        };
+        return classMap[stage] || '';
+    }
+
+    // 날짜 포맷팅
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
+    // 재발송 처리
+    async function resendMessage(messageId) {
+        if (!confirm('메시지를 재발송하시겠습니까?')) return;
+
+        try {
+            const response = await fetch(`/api/message/${messageId}/resend`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert('재발송이 요청되었습니다.');
+                window.close();
+                if (window.opener && !window.opener.closed) {
+                    window.opener.location.reload();
+                }
+            } else {
+                alert('재발송 요청에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('재발송 요청 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 페이지 로드 시 상세 정보 조회
+    if (messageId) {
+        loadMessageDetail();
+    } else {
+        alert('메시지 ID를 찾을 수 없습니다.');
+    }
+</script>
+</body>
+</html>

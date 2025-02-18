@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <title>메시지 대시보드</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+        <style>
+            :root {
+                --primary: #00ff9d;
+                --primary-dark: #00cc7d;
+                --background: #1a1a1a;
+                --surface: #2d2d2d;
+                --text: #ffffff;
+                --text-secondary: #a0a0a0;
+            }
+
+            body {
+                background-color: var(--background);
+                color: var(--text);
+                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            }
+
+            .nav-item {
+                padding: 0.75rem 1rem;
+                border-radius: 0.5rem;
+                transition: all 0.3s ease;
+            }
+
+            .nav-item:hover {
+                background-color: var(--surface);
+                color: var(--primary);
+            }
+
+            .nav-item.active {
+                background-color: var(--surface);
+                color: var(--primary);
+            }
+
+            .table-container {
+                background-color: var(--surface);
+                border-radius: 1rem;
+                overflow: hidden;
+            }
+
+            .message-table {
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            .message-table thead {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+
+            .message-table th {
+                font-weight: 500;
+                color: var(--text-secondary);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .message-table tbody tr {
+                transition: all 0.2s ease;
+            }
+
+            .message-table tbody tr:hover {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+
+            .message-table tbody td {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .message-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .card {
+                background-color: var(--surface);
+                padding: 1.5rem;
+                border-radius: 1rem;
+                text-align: center;
+            }
+
+            .card h3 {
+                font-size: 1.25rem;
+                font-weight: bold;
+                color: var(--text-secondary);
+            }
+
+            .card p {
+                font-size: 1.75rem;
+                font-weight: bold;
+                color: var(--primary);
+            }
+
+            .search-input {
+                background-color: var(--surface);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: var(--text);
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+            }
+
+            .search-input:focus {
+                border-color: var(--primary);
+                outline: none;
+            }
+
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 1rem;
+                font-size: 0.875rem;
+            }
+
+            .status-success {
+                background-color: rgba(0, 255, 157, 0.2);
+                color: var(--primary);
+            }
+
+            .status-pending {
+                background-color: rgba(255, 193, 7, 0.2);
+                color: #ffc107;
+            }
+
+            .status-failed {
+                background-color: rgba(255, 71, 87, 0.2);
+                color: #ff4757;
+            }
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+
+            .pagination-item {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: 0.5rem;
+                background-color: var(--background);
+                color: var(--text);
+                transition: all 0.3s ease;
+            }
+
+            .pagination-item:hover {
+                background-color: var(--surface);
+                color: var(--primary);
+            }
+
+            .pagination-item.active {
+                background-color: var(--primary);
+                color: black;
+            }
+
+            .pagination-item:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        </style>
+</head>
+<body class="min-h-screen">
+<!-- 기존 사이드바 유지 -->
+
+<!-- Main Content -->
+<main class="flex-1 p-8">
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-4 gap-6 mb-8">
+        <div class="card">
+            <h3>전체 발송</h3>
+            <p id="totalCount">-</p>
+        </div>
+        <div class="card">
+            <h3>발송 성공</h3>
+            <p id="sentCount">-</p>
+        </div>
+        <div class="card">
+            <h3>발송 실패</h3>
+            <p id="failedCount">-</p>
+        </div>
+        <div class="card">
+            <h3>대기 중</h3>
+            <p id="pendingCount">-</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="grid grid-cols-5 gap-4 mb-6">
+        <input type="text" id="searchInput"
+               class="search-input"
+               placeholder="메시지 ID 또는 수신자 검색">
+        <select id="stageSelect" class="search-input">
+            <option value="">전체 상태</option>
+            <option value="SENT">발송 완료</option>
+            <option value="PENDING">대기 중</option>
+            <option value="FAILED">실패</option>
+        </select>
+        <input type="text" id="startDate" class="search-input flatpickr-input" placeholder="시작일">
+        <input type="text" id="endDate" class="search-input flatpickr-input" placeholder="종료일">
+        <button onclick="searchMessages()" class="px-4 py-2 rounded-lg"
+                style="background-color: var(--primary); color: black;">검색
+        </button>
+    </div>
+
+    <!-- Message Table -->
+    <div class="table-container">
+        <table class="w-full text-left message-table">
+            <thead>
+            <tr>
+                <th class="p-4">메시지 ID</th>
+                <th class="p-4">발송 유형</th>
+                <th class="p-4">수신자</th>
+                <th class="p-4">상태</th>
+                <th class="p-4">발송 시간</th>
+                <th class="p-4">작업</th>
+            </tr>
+            </thead>
+            <tbody id="messageTableBody">
+            <!-- JavaScript로 동적 생성됨 -->
+            </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="pagination">
+            <!-- JavaScript로 동적 생성됨 -->
+        </div>
+    </div>
+</main>
+</div>
+
+<script>
+    let currentPage = 0;
+    let pageSize = 10;
+    let totalPages = 0;
+
+    // 초기 로드
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMessages();
+
+        // Flatpickr 초기화
+        flatpickr('.flatpickr-input', {
+            dateFormat: 'Y-m-d'
+        });
+    });
+
+    // 메시지 로드 함수
+    async function loadMessages() {
+        try {
+            const searchParams = new URLSearchParams({
+                page: currentPage,
+                size: pageSize,
+                sort: 'createdAt,desc'
+            });
+
+            // 검색 조건 추가
+            const search = document.getElementById('searchInput').value;
+            const stage = document.getElementById('stageSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (search) searchParams.append('search', search);
+            if (stage) searchParams.append('stage', stage);
+            if (startDate) searchParams.append('startDate', startDate);
+            if (endDate) searchParams.append('endDate', endDate);
+
+            const response = await fetch(`/api/messages?${searchParams.toString()}`);
+            const data = await response.json();
+
+            updateTable(data.content);
+            updatePagination(data);
+            updateCounters(data);
+        } catch (error) {
+            console.error('Error loading messages:', error);
+        }
+    }
+
+    // 테이블 업데이트
+    function updateTable(messages) {
+        const tbody = document.getElementById('messageTableBody');
+        tbody.innerHTML = '';
+
+        messages.forEach(message => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td class="p-4">${message.id}</td>
+            <td class="p-4">${message.type}</td>
+            <td class="p-4">${message.to}</td>
+            <td class="p-4">
+                <span class="status-badge ${getStatusClass(message.stage)}">
+                    ${getStatusText(message.stage)}
+                </span>
+            </td>
+            <td class="p-4">${formatDate(message.createdAt)}</td>
+            <td class="p-4">
+                <button onclick="viewDetail('${message.id}')" class="text-blue-400 hover:underline">상세</button>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 페이지네이션 업데이트
+    function updatePagination(data) {
+        const pagination = document.getElementById('pagination');
+        totalPages = data.totalPages;
+
+        let html = '';
+
+        // 이전 페이지 버튼
+        html += `
+        <button onclick="changePage(${currentPage - 1})"
+                class="pagination-item ${currentPage <= 0 ? 'disabled' : ''}"
+                ${currentPage <= 0 ? 'disabled' : ''}>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+    `;
+
+        // 페이지 번호
+        for (let i = 0; i < totalPages; i++) {
+            if (i === 0 || i === totalPages - 1 || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `
+                <button onclick="changePage(${i})"
+                        class="pagination-item ${i === currentPage ? 'active' : ''}">${i + 1}</button>
+            `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += '<span class="px-2">...</span>';
+            }
+        }
+
+        // 다음 페이지 버튼
+        html += `
+        <button onclick="changePage(${currentPage + 1})"
+                class="pagination-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}"
+                ${currentPage >= totalPages - 1 ? 'disabled' : ''}>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+    `;
+
+        pagination.innerHTML = html;
+    }
+
+    // 카운터 업데이트
+    function updateCounters(data) {
+        document.getElementById('totalCount').textContent = data.totalElements || '-';
+
+        // 상태별 카운트는 API에서 제공한다고 가정
+        document.getElementById('sentCount').textContent = data.sentCount || '-';
+        document.getElementById('failedCount').textContent = data.failedCount || '-';
+        document.getElementById('pendingCount').textContent = data.pendingCount || '-';
+    }
+
+    // 페이지 변경
+    function changePage(newPage) {
+        if (newPage < 0 || newPage >= totalPages) return;
+        currentPage = newPage;
+        loadMessages();
+    }
+
+    // 검색
+    function searchMessages() {
+        currentPage = 0; // 검색 시 첫 페이지로 이동
+        loadMessages();
+    }
+
+    // 재발송
+    async function resendMessage(messageId) {
+        if (!confirm('메시지를 재발송하시겠습니까?')) return;
+
+        try {
+            const response = await fetch(`/api/messages/${messageId}/resend`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert('재발송이 요청되었습니다.');
+                loadMessages(); // 목록 새로고침
+            } else {
+                alert('재발송 요청에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('재발송 요청 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 상세 보기
+    function viewDetail(messageId) {
+        const width = 800;
+        const height = 600;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+
+        const detailWindow = window.open(
+            `/messages/${messageId}`,
+            'MessageDetail',
+            `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+        );
+    }
+
+    // 유틸리티 함수들
+    function getStatusClass(stage) {
+        switch (stage) {
+            case 'SENT': return 'status-success';
+            case 'PENDING': return 'status-pending';
+            case 'FAILED': return 'status-failed';
+            default: return '';
+        }
+    }
+
+    function getStatusText(stage) {
+        switch (stage) {
+            case 'SENT': return '발송 완료';
+            case 'PENDING': return '대기 중';
+            case 'FAILED': return '실패';
+            default: return stage;
+        }
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+bootJar { enabled = false }
+jar { enabled = true }
+
+dependencies {
+
+    // spring
+    api 'org.springframework:spring-tx'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // Jackson
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

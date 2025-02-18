@@ -1,8 +1,8 @@
 package kr.co.kwt.messageapi.adapter.in.web;
 
 import kr.co.kwt.messageapi.adapter.in.web.dto.SendMessageRequest;
-import kr.co.kwt.messageapi.application.port.in.SendMessageResult;
-import kr.co.kwt.messageapi.application.port.in.SendMessageUseCase;
+import kr.co.kwt.messagecore.message.application.port.in.CreateMessageUseCase;
+import kr.co.kwt.messagecore.message.application.port.in.command.CreateMessageCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/messages")
 @RequiredArgsConstructor
 public class MessageController {
-    private final SendMessageUseCase sendMessageUseCase;
+
+    private final CreateMessageUseCase createMessageUseCase;
 
     @PostMapping("/send")
-    public ResponseEntity<SendMessageResult> sendMessage(@RequestBody SendMessageRequest request) {
+    public ResponseEntity<CreateMessageCommand.CreateMessageResult> sendMessage(@RequestBody SendMessageRequest request) {
+        CreateMessageCommand.CreateMessageResult body = createMessageUseCase.createMessage(request.toCommand());
         return ResponseEntity
                 .accepted()
-                .body(sendMessageUseCase.sendMessage(request.toCommand()));
+                .body(body);
     }
 }
