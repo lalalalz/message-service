@@ -1,7 +1,7 @@
 package kr.co.kwt.messageinfra.adapter.persistence;
 
-import kr.co.kwt.messagecore.application.port.out.SaveMessagePort;
-import kr.co.kwt.messagecore.domain.Message;
+import kr.co.kwt.messagecore.message.application.port.out.SaveMessagePort;
+import kr.co.kwt.messagecore.message.domain.Message;
 import kr.co.kwt.messageinfra.adapter.persistence.mongo.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

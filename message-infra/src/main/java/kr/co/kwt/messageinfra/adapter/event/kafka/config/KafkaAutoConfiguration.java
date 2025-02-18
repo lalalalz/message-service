@@ -1,7 +1,7 @@
 package kr.co.kwt.messageinfra.adapter.event.kafka.config;
 
 import jakarta.annotation.PostConstruct;
-import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
+import kr.co.kwt.messagecore.message.application.port.out.event.MessageEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.CommonClientConfigs;

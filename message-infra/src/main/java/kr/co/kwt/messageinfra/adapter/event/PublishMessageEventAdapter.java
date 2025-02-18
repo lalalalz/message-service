@@ -1,9 +1,9 @@
 package kr.co.kwt.messageinfra.adapter.event;
 
-import kr.co.kwt.messagecore.application.port.out.PublishMessageEventPort;
-import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
-import kr.co.kwt.messagecore.domain.Channel;
-import kr.co.kwt.messagecore.domain.Type;
+import kr.co.kwt.messagecore.message.application.port.out.PublishMessageEventPort;
+import kr.co.kwt.messagecore.message.application.port.out.event.MessageEvent;
+import kr.co.kwt.messagecore.message.domain.Channel;
+import kr.co.kwt.messagecore.message.domain.Type;
 import kr.co.kwt.messageinfra.adapter.common.MessageSendException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

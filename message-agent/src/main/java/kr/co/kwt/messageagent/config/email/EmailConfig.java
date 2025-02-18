@@ -1,8 +1,6 @@
 package kr.co.kwt.messageagent.config.email;
 
 import co.kr.kwt.starter.kms.modulekms.service.KmsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,13 +21,6 @@ public class EmailConfig {
 
     public EmailConfig(KmsService kmsService) {
         this.kmsService = kmsService;
-    }
-
-    @PostConstruct
-    public void init() throws JsonProcessingException {
-        KmsSecret secrets = kmsService.getSecrets(KmsSecret.class);
-        secrets = kmsService.getSecrets(KmsSecret.class);
-        String secretKey = secrets.getSecretKey();
     }
 
     @Bean

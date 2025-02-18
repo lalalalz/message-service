@@ -1,7 +1,7 @@
 package kr.co.kwt.kms.messageadmin.service;
 
-import kr.co.kwt.messagecore.application.port.in.SearchMessageUseCase;
-import kr.co.kwt.messagecore.application.port.in.query.SearchMessageResult;
+import kr.co.kwt.messagecore.message.application.port.in.SearchMessageUseCase;
+import kr.co.kwt.messagecore.message.application.port.in.query.SearchMessageQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,11 +15,11 @@ public class MessageDashBoardService {
 
     private final SearchMessageUseCase searchMessageUseCase;
 
-    public Page<SearchMessageResult> getMessagePages(Pageable pageable) {
+    public Page<SearchMessageQuery.SearchMessageResult> getMessagePages(Pageable pageable) {
         return searchMessageUseCase.searchMessages(pageable);
     }
 
-    public SearchMessageResult getMessage(String id) {
-        return searchMessageUseCase.searchMessage(UUID.fromString(id));
+    public SearchMessageQuery.SearchMessageResult getMessage(String id) {
+        return searchMessageUseCase.searchMessage(new SearchMessageQuery(UUID.fromString(id)));
     }
 }

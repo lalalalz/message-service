@@ -1,6 +1,6 @@
 package kr.co.kwt.messageagent.event;
 
-import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
+import kr.co.kwt.messagecore.message.application.port.out.event.MessageEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

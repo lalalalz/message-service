@@ -1,6 +1,6 @@
 package kr.co.kwt.messageagent.service;
 
-import kr.co.kwt.messagecore.application.port.out.event.SaveMessageEvent;
+import kr.co.kwt.messagecore.message.application.port.out.event.SaveMessageEvent;
 import org.springframework.stereotype.Component;
 
 @Component

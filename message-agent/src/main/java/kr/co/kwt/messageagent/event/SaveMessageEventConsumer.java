@@ -2,8 +2,8 @@ package kr.co.kwt.messageagent.event;
 
 import kr.co.kwt.messageagent.service.EmailService;
 import kr.co.kwt.messageagent.service.PushService;
-import kr.co.kwt.messagecore.application.port.out.event.MessageEvent;
-import kr.co.kwt.messagecore.application.port.out.event.SaveMessageEvent;
+import kr.co.kwt.messagecore.message.application.port.out.event.MessageEvent;
+import kr.co.kwt.messagecore.message.application.port.out.event.SaveMessageEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

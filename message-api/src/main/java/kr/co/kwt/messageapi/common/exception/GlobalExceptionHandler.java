@@ -1,6 +1,6 @@
 package kr.co.kwt.messageapi.common.exception;
 
-import kr.co.kwt.messagecore.domain.DomainException;
+import kr.co.kwt.messagecore.message.domain.DomainException;
 import kr.co.kwt.messageapi.common.exception.dto.ExceptionResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

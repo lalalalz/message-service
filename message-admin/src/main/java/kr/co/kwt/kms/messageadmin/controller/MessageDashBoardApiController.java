@@ -1,7 +1,7 @@
 package kr.co.kwt.kms.messageadmin.controller;
 
 import kr.co.kwt.kms.messageadmin.service.MessageDashBoardService;
-import kr.co.kwt.messagecore.application.port.in.query.SearchMessageResult;
+import kr.co.kwt.messagecore.message.application.port.in.query.SearchMessageQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +16,12 @@ public class MessageDashBoardApiController {
     private final MessageDashBoardService messageDashBoardService;
 
     @GetMapping("/api/message/{id}")
-    public SearchMessageResult searchMessage(@PathVariable String id) {
+    public SearchMessageQuery.SearchMessageResult searchMessage(@PathVariable String id) {
         return messageDashBoardService.getMessage(id);
     }
 
     @GetMapping("/api/messages")
-    public Page<SearchMessageResult> searchMessages(Pageable pageable) {
+    public Page<SearchMessageQuery.SearchMessageResult> searchMessages(Pageable pageable) {
         return messageDashBoardService.getMessagePages(pageable);
     }
 }

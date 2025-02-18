@@ -1,6 +1,6 @@
 package kr.co.kwt.messageapi.adapter.in.web.dto;
 
-import kr.co.kwt.messagecore.application.port.in.command.CreateMessageCommand;
+import kr.co.kwt.messagecore.message.application.port.in.command.CreateMessageCommand;
 import lombok.Value;
 
 @Value
